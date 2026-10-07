@@ -4,10 +4,10 @@ import {
   type LovelaceRowConfig,
   type PowerFlowCardPlusConfig,
 } from "@flixlix-cards/shared/types";
+import "@flixlix-cards/shared/ui-editor/components/battery-devices-editor";
 import "@flixlix-cards/shared/ui-editor/components/individual-devices-editor";
 import "@flixlix-cards/shared/ui-editor/components/link-subpage";
 import "@flixlix-cards/shared/ui-editor/components/subpage-header";
-import { batterySchema } from "@flixlix-cards/shared/ui-editor/schema/battery";
 import { nonFossilSchema } from "@flixlix-cards/shared/ui-editor/schema/fossil-fuel-percentage";
 import { gridSchema } from "@flixlix-cards/shared/ui-editor/schema/grid";
 import { homeSchema } from "@flixlix-cards/shared/ui-editor/schema/home";
@@ -39,7 +39,6 @@ const CONFIG_PAGES: {
   {
     page: "battery",
     icon: "mdi:battery-high",
-    schema: batterySchema,
   },
   {
     page: "fossil_fuel_percentage",
@@ -248,6 +247,19 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
         `;
       }
 
+      if (this._currentConfigPage === "battery") {
+        return html`
+          ${this._renderLegacyFieldsAlert()} ${this._renderLegacyIndividualFieldsAlert()}
+          <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}>
+          </subpage-header>
+          <battery-devices-editor
+            .hass=${this.hass}
+            .config=${this._config}
+            @config-changed=${this._valueChanged}
+          ></battery-devices-editor>
+        `;
+      }
+
       const currentPage = this._currentConfigPage;
       const schema =
         currentPage === "advanced"
@@ -323,7 +335,8 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
     if (
       this._currentConfigPage !== null &&
       this._currentConfigPage !== "advanced" &&
-      this._currentConfigPage !== "individual"
+      this._currentConfigPage !== "individual" &&
+      this._currentConfigPage !== "battery"
     ) {
       config = {
         ...this._config,

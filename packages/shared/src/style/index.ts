@@ -206,6 +206,17 @@ export const styles = css`
     height: 110px;
     justify-content: flex-end;
   }
+  .batteries-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 110px;
+  }
+  .batteries-stack .circle-container.battery {
+    height: auto;
+  }
   .spacer {
     width: var(--size-circle-entity);
   }
