@@ -147,9 +147,13 @@ export const aggregateBatteryObjects = ({
   let totalCapacity = 0;
   let plainSum = 0;
   let plainCount = 0;
+  let showStateOfCharge = false;
 
   for (const battery of visible) {
     const soc = battery.state_of_charge.state;
+    if (battery.config.show_state_of_charge !== false && soc !== null) {
+      showStateOfCharge = true;
+    }
     if (soc === null) continue;
     plainSum += soc;
     plainCount += 1;
@@ -162,9 +166,19 @@ export const aggregateBatteryObjects = ({
   const aggregatedSoc =
     totalCapacity > 0 ? weightedSum / totalCapacity : plainCount > 0 ? plainSum / plainCount : null;
 
+  const aggregateConfig: Battery = {
+    ...primary.config,
+    name: "Batteries",
+    icon: undefined,
+    show_state_of_charge: showStateOfCharge,
+    state_of_charge: undefined,
+  };
+
   return {
     ...primary,
+    config: aggregateConfig,
     has: true,
+    name: "Batteries",
     state_of_charge: {
       ...primary.state_of_charge,
       state: aggregatedSoc,
@@ -175,6 +189,6 @@ export const aggregateBatteryObjects = ({
       toGrid: 0,
       toHome: 0,
     },
-    icon: resolveBatteryIcon(hass, primary.config, aggregatedSoc),
+    icon: resolveBatteryIcon(hass, aggregateConfig, aggregatedSoc),
   };
 };

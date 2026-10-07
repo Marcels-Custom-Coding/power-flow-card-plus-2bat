@@ -206,58 +206,6 @@ export const styles = css`
     height: 110px;
     justify-content: flex-end;
   }
-  .circle-container.battery.has-breakdown {
-    height: auto;
-    min-height: 110px;
-  }
-  .batteries-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 6px;
-    width: min(160px, 100%);
-  }
-  .battery-breakdown-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas:
-      "icon name soc"
-      "icon power power";
-    column-gap: 4px;
-    row-gap: 1px;
-    align-items: center;
-    cursor: var(--clickable-cursor);
-    font-size: 11px;
-    line-height: 1.2;
-    color: var(--primary-text-color);
-  }
-  .battery-breakdown-icon {
-    grid-area: icon;
-    color: var(--icon-battery-color, var(--primary-text-color));
-  }
-  .battery-breakdown-name {
-    grid-area: name;
-    color: var(--secondary-text-color);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
-  .battery-breakdown-soc {
-    grid-area: soc;
-    color: var(--text-battery-state-of-charge-color, var(--primary-text-color));
-    font-weight: 500;
-  }
-  .battery-breakdown-power {
-    grid-area: power;
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-  }
-  .battery-breakdown-power .battery-in,
-  .battery-breakdown-power .battery-out {
-    font-size: 11px;
-  }
   .spacer {
     width: var(--size-circle-entity);
   }
