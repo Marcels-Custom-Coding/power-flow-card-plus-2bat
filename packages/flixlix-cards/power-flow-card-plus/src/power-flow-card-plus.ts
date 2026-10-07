@@ -13,8 +13,8 @@ import { spacer } from "@flixlix-cards/shared/components/spacer";
 import { CIRCLE_CIRCUMFERENCE } from "@flixlix-cards/shared/const/circle";
 import { handleAction } from "@flixlix-cards/shared/ha/panels/lovelace/common/handle-action";
 import {
-  type RenderTemplateResult,
   subscribeRenderTemplate,
+  type RenderTemplateResult,
 } from "@flixlix-cards/shared/ha/template/ha-websocket";
 import localize from "@flixlix-cards/shared/i18n";
 import {
@@ -478,9 +478,7 @@ export class PowerFlowCardPlus extends LitElement {
           ${battery.has || checkHasBottomIndividual(individualObjs)
             ? html`<div class="row">
                 ${spacer}
-                ${battery.has
-                  ? batteriesElement(this, this._config, { batteries })
-                  : spacer}
+                ${battery.has ? batteriesElement(this, this._config, { batteries }) : spacer}
                 ${individualFieldLeftBottom
                   ? individualLeftBottomElement(this, this._config, {
                       displayState: getIndividualDisplayState(individualFieldLeftBottom),

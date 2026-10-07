@@ -855,9 +855,7 @@ export class EnergyFlowCardPlus extends LitElement {
           ? getEnergyEntityStateLocal(field.entity)
           : getEnergyEntityStateLocal(field.entity?.production);
       const fromBattery =
-        typeof field.entity === "string"
-          ? 0
-          : getEnergyEntityStateLocal(field.entity?.consumption);
+        typeof field.entity === "string" ? 0 : getEnergyEntityStateLocal(field.entity?.consumption);
       const batteryObj = getBatteryObject({
         hass: this.hass,
         config: this._config,
@@ -883,34 +881,32 @@ export class EnergyFlowCardPlus extends LitElement {
       }
       return batteryObj;
     });
-    const battery: BatteryObject =
-      aggregateBatteryObjects({ hass: this.hass, batteries }) ??
-      {
-        config: primaryBattery ?? { entity: "", color_circle: "color_dynamically" },
-        entity: primaryBattery?.entity ?? "",
-        has: false,
-        mainEntity: undefined,
-        name: batteryFallbackName,
-        icon: "mdi:battery",
-        state_of_charge: {
-          state: null,
-          unit: "%",
-          unit_white_space: true,
-          decimals: 0,
-        },
-        state: {
-          toBattery: 0,
-          fromBattery: 0,
-          toGrid: 0,
-          toHome: 0,
-        },
-        color: {
-          fromBattery: undefined,
-          toBattery: undefined,
-          icon_type: undefined,
-          circle_type: "color_dynamically",
-        },
-      };
+    const battery: BatteryObject = aggregateBatteryObjects({ hass: this.hass, batteries }) ?? {
+      config: primaryBattery ?? { entity: "", color_circle: "color_dynamically" },
+      entity: primaryBattery?.entity ?? "",
+      has: false,
+      mainEntity: undefined,
+      name: batteryFallbackName,
+      icon: "mdi:battery",
+      state_of_charge: {
+        state: null,
+        unit: "%",
+        unit_white_space: true,
+        decimals: 0,
+      },
+      state: {
+        toBattery: 0,
+        fromBattery: 0,
+        toGrid: 0,
+        toHome: 0,
+      },
+      color: {
+        fromBattery: undefined,
+        toBattery: undefined,
+        icon_type: undefined,
+        circle_type: "color_dynamically",
+      },
+    };
     const home = {
       entity: entities.home?.entity,
       has: entities?.home?.entity !== undefined,
