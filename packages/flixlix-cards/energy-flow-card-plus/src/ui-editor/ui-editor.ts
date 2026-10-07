@@ -14,6 +14,7 @@ import { homeSchema } from "@flixlix-cards/shared/ui-editor/schema/home";
 import { solarSchema } from "@flixlix-cards/shared/ui-editor/schema/solar";
 import { loadHaForm } from "@flixlix-cards/shared/ui-editor/utils/load-ha-form";
 import { defaultValues } from "@flixlix-cards/shared/utils/get-default-config";
+import { getPrimaryBattery } from "@flixlix-cards/shared/utils/normalize-batteries";
 import { fireEvent, type HomeAssistant, type LovelaceCardEditor } from "custom-card-helpers";
 import { LitElement, css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -276,6 +277,9 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
       if (page === null) return nothing;
       const getIconToUse = () => {
         if (page === "individual" || page === "advanced") return fallbackIcon;
+        if (page === "battery") {
+          return getPrimaryBattery(this?._config?.entities.battery)?.icon || fallbackIcon;
+        }
         const entityConfig = this?._config?.entities[page] as { icon?: string } | undefined;
         return entityConfig?.icon || fallbackIcon;
       };
