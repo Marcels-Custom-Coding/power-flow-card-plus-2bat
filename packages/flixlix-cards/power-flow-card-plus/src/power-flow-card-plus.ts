@@ -478,7 +478,9 @@ export class PowerFlowCardPlus extends LitElement {
           ${battery.has || checkHasBottomIndividual(individualObjs)
             ? html`<div class="row">
                 ${spacer}
-                ${battery.has ? batteriesElement(this, this._config, { batteries }) : spacer}
+                ${battery.has
+                  ? batteriesElement(this, this._config, { battery, batteries })
+                  : spacer}
                 ${individualFieldLeftBottom
                   ? individualLeftBottomElement(this, this._config, {
                       displayState: getIndividualDisplayState(individualFieldLeftBottom),

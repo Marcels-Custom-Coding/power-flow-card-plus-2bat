@@ -40,15 +40,132 @@ const shouldShowBatteryOut = (battery: BatteryObject) => {
   );
 };
 
+const batteryPowerSpans = (
+  main: CardMainContext,
+  config: FlowCardPlusConfig,
+  battery: BatteryObject
+) => html`
+  ${shouldShowBatteryIn(battery)
+    ? html`<span
+        class="battery-in"
+        @click=${(e: MouseEvent) => {
+          main.onEntityClick(e, battery.config, getBatteryInTarget(battery));
+        }}
+        @dblclick=${(e: MouseEvent) => {
+          main.onEntityDoubleClick(e, battery.config, getBatteryInTarget(battery));
+        }}
+        @pointerdown=${(e: PointerEvent) => {
+          main.onEntityPointerDown(e, battery.config, getBatteryInTarget(battery));
+        }}
+        @pointerup=${(e: PointerEvent) => {
+          main.onEntityPointerUp(e);
+        }}
+        @pointercancel=${(e: PointerEvent) => {
+          main.onEntityPointerUp(e);
+        }}
+        @keyDown=${(e: { key: string; stopPropagation: () => void; target: HTMLElement }) => {
+          if (e.key === "Enter") {
+            main.openDetails(e, battery.config, getBatteryInTarget(battery), "tap");
+          }
+        }}
+      >
+        <ha-icon class="small" .icon=${"mdi:arrow-down"}></ha-icon>
+        ${displayValue(main.hass, config, battery.state.toBattery, {
+          unit: battery.unit,
+          unitWhiteSpace: battery.unit_white_space,
+          decimals: battery.decimals,
+        })}</span
+      >`
+    : nothing}
+  ${shouldShowBatteryOut(battery)
+    ? html`<span
+        class="battery-out"
+        @click=${(e: MouseEvent) => {
+          main.onEntityClick(e, battery.config, getBatteryOutTarget(battery));
+        }}
+        @dblclick=${(e: MouseEvent) => {
+          main.onEntityDoubleClick(e, battery.config, getBatteryOutTarget(battery));
+        }}
+        @pointerdown=${(e: PointerEvent) => {
+          main.onEntityPointerDown(e, battery.config, getBatteryOutTarget(battery));
+        }}
+        @pointerup=${(e: PointerEvent) => {
+          main.onEntityPointerUp(e);
+        }}
+        @pointercancel=${(e: PointerEvent) => {
+          main.onEntityPointerUp(e);
+        }}
+        @keyDown=${(e: { key: string; stopPropagation: () => void; target: HTMLElement }) => {
+          if (e.key === "Enter") {
+            main.openDetails(e, battery.config, getBatteryOutTarget(battery), "tap");
+          }
+        }}
+      >
+        <ha-icon class="small" .icon=${"mdi:arrow-up"}></ha-icon>
+        ${displayValue(main.hass, config, battery.state.fromBattery, {
+          unit: battery.unit,
+          unitWhiteSpace: battery.unit_white_space,
+          decimals: battery.decimals,
+        })}</span
+      >`
+    : nothing}
+`;
+
+const batteryBreakdownRow = (
+  main: CardMainContext,
+  config: FlowCardPlusConfig,
+  battery: BatteryObject
+) => {
+  const disableEntityClick = config.clickable_entities === false;
+  const clickTarget = getBatteryClickTarget(battery);
+
+  return html`<div
+    class="battery-breakdown-row ${disableEntityClick ? "pointer-events-none" : ""}"
+    @click=${(e: MouseEvent) => {
+      main.onEntityClick(e, battery.config, clickTarget);
+    }}
+    @dblclick=${(e: MouseEvent) => {
+      main.onEntityDoubleClick(e, battery.config, clickTarget);
+    }}
+    @pointerdown=${(e: PointerEvent) => {
+      main.onEntityPointerDown(e, battery.config, clickTarget);
+    }}
+    @pointerup=${(e: PointerEvent) => {
+      main.onEntityPointerUp(e);
+    }}
+    @pointercancel=${(e: PointerEvent) => {
+      main.onEntityPointerUp(e);
+    }}
+  >
+    <ha-icon class="small battery-breakdown-icon" .icon=${battery.icon}></ha-icon>
+    <span class="battery-breakdown-name">${battery.name}</span>
+    ${battery.state_of_charge.state !== null && battery.config.show_state_of_charge !== false
+      ? html`<span class="battery-breakdown-soc"
+          >${displayValue(main.hass, config, battery.state_of_charge.state, {
+            unit: battery.state_of_charge.unit ?? "%",
+            unitWhiteSpace: battery.state_of_charge.unit_white_space,
+            decimals: battery.state_of_charge.decimals,
+            accept_negative: true,
+          })}</span
+        >`
+      : nothing}
+    <span class="battery-breakdown-power">${batteryPowerSpans(main, config, battery)}</span>
+  </div>`;
+};
+
 export const batteryElement = (
   main: CardMainContext,
   config: FlowCardPlusConfig,
   {
     battery,
     index = 0,
+    label,
+    breakdown,
   }: {
     battery: BatteryObject;
     index?: number;
+    label?: string;
+    breakdown?: BatteryObject[];
   }
 ) => {
   const disableEntityClick = config.clickable_entities === false;
@@ -59,8 +176,12 @@ export const batteryElement = (
         ? (battery.color.fromBattery as string | undefined)
         : (battery.color.toBattery as string | undefined)
       : undefined;
+  const hasBreakdown = Boolean(breakdown && breakdown.length > 1);
 
-  return html`<div class="circle-container battery" data-battery-index=${index}>
+  return html`<div
+    class="circle-container battery ${hasBreakdown ? "has-breakdown" : ""}"
+    data-battery-index=${index}
+  >
     <div
       class="circle ${disableEntityClick ? "pointer-events-none" : ""}"
       style=${circleColor ? `border-color: ${circleColor};` : ""}
@@ -144,93 +265,56 @@ export const batteryElement = (
             }}
           ></ha-icon>`
         : nothing}
-      ${shouldShowBatteryIn(battery)
-        ? html`<span
-            class="battery-in"
-            @click=${(e: MouseEvent) => {
-              main.onEntityClick(e, battery.config, getBatteryInTarget(battery));
-            }}
-            @dblclick=${(e: MouseEvent) => {
-              main.onEntityDoubleClick(e, battery.config, getBatteryInTarget(battery));
-            }}
-            @pointerdown=${(e: PointerEvent) => {
-              main.onEntityPointerDown(e, battery.config, getBatteryInTarget(battery));
-            }}
-            @pointerup=${(e: PointerEvent) => {
-              main.onEntityPointerUp(e);
-            }}
-            @pointercancel=${(e: PointerEvent) => {
-              main.onEntityPointerUp(e);
-            }}
-            @keyDown=${(e: { key: string; stopPropagation: () => void; target: HTMLElement }) => {
-              if (e.key === "Enter") {
-                main.openDetails(e, battery.config, getBatteryInTarget(battery), "tap");
-              }
-            }}
-          >
-            <ha-icon class="small" .icon=${"mdi:arrow-down"}></ha-icon>
-            ${displayValue(main.hass, config, battery.state.toBattery, {
-              unit: battery.unit,
-              unitWhiteSpace: battery.unit_white_space,
-              decimals: battery.decimals,
-            })}</span
-          >`
-        : nothing}
-      ${shouldShowBatteryOut(battery)
-        ? html`<span
-            class="battery-out"
-            @click=${(e: MouseEvent) => {
-              main.onEntityClick(e, battery.config, getBatteryOutTarget(battery));
-            }}
-            @dblclick=${(e: MouseEvent) => {
-              main.onEntityDoubleClick(e, battery.config, getBatteryOutTarget(battery));
-            }}
-            @pointerdown=${(e: PointerEvent) => {
-              main.onEntityPointerDown(e, battery.config, getBatteryOutTarget(battery));
-            }}
-            @pointerup=${(e: PointerEvent) => {
-              main.onEntityPointerUp(e);
-            }}
-            @pointercancel=${(e: PointerEvent) => {
-              main.onEntityPointerUp(e);
-            }}
-            @keyDown=${(e: { key: string; stopPropagation: () => void; target: HTMLElement }) => {
-              if (e.key === "Enter") {
-                main.openDetails(e, battery.config, getBatteryOutTarget(battery), "tap");
-              }
-            }}
-          >
-            <ha-icon class="small" .icon=${"mdi:arrow-up"}></ha-icon>
-            ${displayValue(main.hass, config, battery.state.fromBattery, {
-              unit: battery.unit,
-              unitWhiteSpace: battery.unit_white_space,
-              decimals: battery.decimals,
-            })}</span
-          >`
-        : nothing}
+      ${batteryPowerSpans(main, config, battery)}
     </div>
-    <span class="label">${battery.name}</span>
+    <span class="label">${label ?? battery.name}</span>
+    ${hasBreakdown
+      ? html`<div class="batteries-breakdown">
+          ${breakdown!.map((item) => batteryBreakdownRow(main, config, item))}
+        </div>`
+      : nothing}
   </div>`;
+};
+
+const withDistinctBatteryNames = (batteries: BatteryObject[]): BatteryObject[] => {
+  const counts = new Map<string, number>();
+  for (const item of batteries) {
+    counts.set(item.name, (counts.get(item.name) ?? 0) + 1);
+  }
+
+  const seen = new Map<string, number>();
+  return batteries.map((item) => {
+    const total = counts.get(item.name) ?? 1;
+    if (total === 1) return item;
+    const next = (seen.get(item.name) ?? 0) + 1;
+    seen.set(item.name, next);
+    return { ...item, name: `${item.name} ${next}` };
+  });
 };
 
 export const batteriesElement = (
   main: CardMainContext,
   config: FlowCardPlusConfig,
   {
+    battery,
     batteries,
   }: {
+    battery: BatteryObject;
     batteries: BatteryObject[];
   }
 ) => {
-  const visibleBatteries = batteries.filter((battery) => battery.has);
-  if (visibleBatteries.length === 0) return nothing;
+  const visibleBatteries = withDistinctBatteryNames(batteries.filter((item) => item.has));
+  if (!battery.has && visibleBatteries.length === 0) return nothing;
 
-  const firstBattery = visibleBatteries[0];
-  if (visibleBatteries.length === 1 && firstBattery) {
-    return batteryElement(main, config, { battery: firstBattery, index: 0 });
+  if (visibleBatteries.length <= 1) {
+    const single = visibleBatteries[0] ?? battery;
+    return batteryElement(main, config, { battery: single, index: 0 });
   }
 
-  return html`<div class="batteries-stack">
-    ${visibleBatteries.map((battery, index) => batteryElement(main, config, { battery, index }))}
-  </div>`;
+  return batteryElement(main, config, {
+    battery,
+    index: 0,
+    label: "Batteries",
+    breakdown: visibleBatteries,
+  });
 };

@@ -401,7 +401,7 @@ This should give you something like this:
 
 ### Multiple Batteries
 
-`entities.battery` also accepts an array. Each battery keeps its own name, SOC, and power in/out. Flow distribution still uses the aggregated totals.
+`entities.battery` also accepts an array. The diagram keeps a single battery node for flow lines (aggregated totals). Individual batteries are listed under that node with their own name, SOC, and power in/out.
 
 ```yaml
 type: custom:power-flow-card-plus
