@@ -143,10 +143,24 @@ const battery2CombinedSchema = {
   ],
 };
 
-/* the options for the shared circle only show up once that mode is picked */
+const battery2SplitStyleSchema = {
+  name: "split_style",
+  selector: {
+    select: {
+      options: [
+        { value: "group", label: localize("editor.split_style_group") },
+        { value: "bus", label: localize("editor.split_style_bus") },
+        { value: "node", label: localize("editor.split_style_node") },
+      ],
+      mode: "dropdown",
+    },
+  },
+};
+
+/* options only show up for the mode they belong to */
 export const getBattery2Schema = (mode: string | undefined) => [
   battery2ModeSchema,
-  ...(mode === "combined" ? [battery2CombinedSchema] : []),
+  ...(mode === "combined" ? [battery2CombinedSchema] : [battery2SplitStyleSchema]),
   ...batterySchema,
 ];
 

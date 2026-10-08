@@ -225,11 +225,12 @@ This fork registers its own card type `custom:power-flow-card-plus-2bat` (shown 
 
 `battery2` accepts every option of the [Battery Configuration](#battery-configuration) and a few more:
 
-| Name                     | Type                     | Default                | Description                                                                                                                                                                                  |
-| ------------------------ | ------------------------ | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| mode                     | "separate" or "combined" | `separate`             | `separate` shows the second battery as its own circle next to the first one, connected by a small fork. `combined` adds both batteries up and shows them in the circle of the first battery. |
-| combined_state_of_charge | "both" or "average"      | `both`                 | Only for `combined`: show both states of charge side by side, or their average.                                                                                                              |
-| combined_name            | `string`                 | `Battery` (translated) | Only for `combined`: label below the shared circle.                                                                                                                                          |
+| Name                     | Type                     | Default                | Description                                                                                                                                                                                                                                                |
+| ------------------------ | ------------------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| mode                     | "separate" or "combined" | `separate`             | `separate` shows the second battery as its own circle next to the first one, connected by a small fork. `combined` adds both batteries up and shows them in the circle of the first battery.                                                               |
+| split_style              | "group", "bus" or "node" | `group`                | Only for `separate`: how the battery lines reach both batteries. `group` draws a frame around both batteries and lets the lines meet on top of it, `bus` ends them on a short bar with two branches, `node` runs them into a small ring with two branches. |
+| combined_state_of_charge | "both" or "average"      | `both`                 | Only for `combined`: show both states of charge side by side, or their average.                                                                                                                                                                            |
+| combined_name            | `string`                 | `Battery` (translated) | Only for `combined`: label below the shared circle.                                                                                                                                                                                                        |
 
 Display options that are not set on `battery2` (e.g. `display_state`, `color_value`, `color_circle`, state of charge unit and decimals) are taken from `battery`.
 
@@ -249,6 +250,7 @@ entities:
   battery2:
     name: Marstek
     mode: separate
+    split_style: group
     entity: sensor.marstek_power
     state_of_charge: sensor.marstek_state_of_charge
 ```

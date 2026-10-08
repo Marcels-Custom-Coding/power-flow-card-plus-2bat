@@ -252,7 +252,12 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
         currentPage === "advanced"
           ? data
           : currentPage === "battery2"
-            ? { mode: "separate", show_state_of_charge: true, ...data.entities.battery2 }
+            ? {
+                mode: "separate",
+                split_style: "group",
+                show_state_of_charge: true,
+                ...data.entities.battery2,
+              }
             : currentPage === "battery"
               ? { show_state_of_charge: true, ...data.entities.battery }
               : data.entities[currentPage];

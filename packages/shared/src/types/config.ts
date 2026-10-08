@@ -79,6 +79,8 @@ interface Battery extends BaseConfigEntity {
 interface SecondBattery extends Battery {
   /** separate: own circle next to the first battery, combined: both batteries share one circle */
   mode?: "separate" | "combined";
+  /** only for mode separate: how the lines reach both batteries */
+  split_style?: "group" | "bus" | "node";
   /** only for mode combined: show both values or their average */
   combined_state_of_charge?: "both" | "average";
   /** only for mode combined: label below the shared circle */

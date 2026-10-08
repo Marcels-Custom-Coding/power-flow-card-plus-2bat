@@ -628,10 +628,40 @@ export const styles = css`
   .battery-split.shift-left > * {
     transform: translateX(-48px);
   }
+  /* the lines end where the battery row starts: circle and label (100px) plus what sits above */
   .card-content.has-battery-split .lines.high,
   .card-content.has-battery-split .right-individual-flow-container {
-    /* circle and label (100px) plus the fork (36px) */
+    /* bus and node: 36px for bar or ring and the branches */
     bottom: 136px;
+  }
+  .card-content.has-battery-split.battery-split-group .lines.high,
+  .card-content.has-battery-split.battery-split-group .right-individual-flow-container {
+    /* group: 20px for the lines to meet, frame border and padding 4.5px each side */
+    bottom: 129px;
+  }
+  .battery-group-frame {
+    border: 1.5px solid color-mix(in srgb, var(--circle-battery-color) 55%, transparent);
+    border-radius: 56px;
+    padding: 3px 8px;
+  }
+  line.battery-hub {
+    stroke: var(--disabled-text-color);
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+  circle.battery-hub {
+    stroke: var(--disabled-text-color);
+    stroke-width: 1.5;
+    fill: var(--card-background-color, var(--ha-card-background, #fff));
+  }
+  circle.battery-hub-dot {
+    fill: var(--disabled-text-color);
+  }
+  circle.battery-hub-dot.in {
+    fill: var(--energy-battery-in-color);
+  }
+  circle.battery-hub-dot.out {
+    fill: var(--energy-battery-out-color);
   }
   .card-content.has-battery-split .circle-container.individual-bottom {
     justify-content: flex-start;

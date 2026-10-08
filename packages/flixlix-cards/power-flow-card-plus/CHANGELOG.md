@@ -1,5 +1,11 @@
 # power-flow-card-plus
 
+## 0.5.0
+
+### Minor Changes
+
+- `battery2.split_style` picks how the battery lines reach both batteries in `separate` mode: `group` (frame around both batteries, new default), `bus` (bus bar with two branches) or `node` (junction ring with two branches). Selectable in the visual editor.
+
 ## 0.4.5
 
 ### Patch Changes
