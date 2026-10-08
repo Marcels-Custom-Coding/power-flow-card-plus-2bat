@@ -231,6 +231,8 @@ This fork registers its own card type `custom:power-flow-card-plus-2bat` (shown 
 | combined_state_of_charge | "both" or "average"      | `both`                 | Only for `combined`: show both states of charge side by side, or their average.                                                                                                              |
 | combined_name            | `string`                 | `Battery` (translated) | Only for `combined`: label below the shared circle.                                                                                                                                          |
 
+Display options that are not set on `battery2` (e.g. `display_state`, `color_value`, `color_circle`, state of charge unit and decimals) are taken from `battery`.
+
 Power moving straight from one battery into the other is not counted as going to home or grid. In `separate` mode the fork shows it: one branch flows up, the other one down.
 
 ```yaml

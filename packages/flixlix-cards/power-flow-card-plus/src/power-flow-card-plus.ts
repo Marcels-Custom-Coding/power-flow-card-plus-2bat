@@ -1,5 +1,10 @@
 import { batteryElement } from "@flixlix-cards/shared/components/battery";
-import { batterySplitElement } from "@flixlix-cards/shared/components/battery-split";
+import {
+  batterySplitElement,
+  forkJunctionX,
+  type ForkLink,
+  visibleLineEnd,
+} from "@flixlix-cards/shared/components/battery-split";
 import { flowElement } from "@flixlix-cards/shared/components/flows/index";
 import { gridElement } from "@flixlix-cards/shared/components/grid";
 import { homeElement } from "@flixlix-cards/shared/components/home";
@@ -74,6 +79,7 @@ import {
   computeBatteryIcon,
   computeBatteryUnitStyle,
   getBatteryMode,
+  inheritBatteryDisplayOptions,
 } from "@flixlix-cards/shared/utils/compute-second-battery";
 import { displayValue } from "@flixlix-cards/shared/utils/display-value";
 import { defaultValues, getDefaultConfig } from "@flixlix-cards/shared/utils/get-default-config";
@@ -107,6 +113,8 @@ export class PowerFlowCardPlus extends LitElement {
   @state() private _templateResults: Partial<Record<string, RenderTemplateResult>> = {};
   @state() private _unsubRenderTemplates?: Map<string, Promise<UnsubscribeFunc>> = new Map();
   @state() private _width = 0;
+  @state() private _forkOffset = 0;
+  @state() private _forkLinks: ForkLink[] = [];
   private readonly wideEnoughForFourIndividuals = 359;
   private _resizeObserver?: ResizeObserver;
   private _handleVisibilityChange = () => {
@@ -163,6 +171,12 @@ export class PowerFlowCardPlus extends LitElement {
     }
     this._config = {
       ...config,
+      entities: {
+        ...config.entities,
+        ...(config.entities.battery2 && {
+          battery2: inheritBatteryDisplayOptions(config.entities.battery, config.entities.battery2),
+        }),
+      },
       min_flow_rate: coerceNumber(config.min_flow_rate, defaultValues.minFlowRate),
       max_flow_rate: coerceNumber(config.max_flow_rate, defaultValues.maxFlowRate),
       base_decimals: coerceNumber(config.base_decimals, defaultValues.baseDecimals),
@@ -490,6 +504,8 @@ export class PowerFlowCardPlus extends LitElement {
                       entities,
                       shiftLeft:
                         !!individualFieldLeftBottom && checkHasRightIndividual(individualObjs),
+                      offset: this._forkOffset,
+                      links: this._forkLinks,
                     })
                   : battery.has
                     ? batteryElement(this, this._config, {
@@ -554,7 +570,50 @@ export class PowerFlowCardPlus extends LitElement {
       }
     }
 
+    this._alignBatteryFork();
     this._tryConnectAll();
+  }
+
+  /* The battery lines are drawn in a cropped svg whose visible end depends on the card width,
+     so they stop a little above the battery row and apart from each other. Measure where each one
+     becomes invisible and let the fork pick them up from there. */
+  private _alignBatteryFork() {
+    const fork = this.shadowRoot?.querySelector<SVGSVGElement>(".battery-fork");
+    if (!fork) return;
+    const forkBox = fork.getBoundingClientRect();
+    const junctionX = forkJunctionX(fork.closest(".shift-left") !== null);
+    const ends = ["battery-grid", "battery-solar", "battery-home"].flatMap((id) => {
+      const path = this.shadowRoot?.querySelector<SVGPathElement>(`#${id}`);
+      const end = path ? visibleLineEnd(path) : undefined;
+      if (!path || !end) return [];
+      const style = getComputedStyle(path);
+      return [
+        {
+          id,
+          x: end.x - forkBox.left,
+          y: end.y - forkBox.top,
+          stroke: style.stroke,
+          opacity: style.opacity,
+        },
+      ];
+    });
+    const solarEnd = ends.find((end) => end.id === "battery-solar");
+    const meetingX = solarEnd
+      ? solarEnd.x
+      : ends.reduce((sum, end) => sum + end.x, 0) / Math.max(ends.length, 1);
+    const offset = ends.length ? Math.round(meetingX - junctionX) : 0;
+    const links: ForkLink[] = ends.map((end) => {
+      const x = Math.round(end.x * 10) / 10;
+      const y = Math.round(end.y * 10) / 10;
+      const toX = junctionX + offset;
+      return {
+        d: `M${x},${y} C${x},${y / 2} ${toX},${y / 2} ${toX},0`,
+        stroke: end.stroke,
+        opacity: end.opacity,
+      };
+    });
+    if (offset !== this._forkOffset) this._forkOffset = offset;
+    if (JSON.stringify(links) !== JSON.stringify(this._forkLinks)) this._forkLinks = links;
   }
 
   protected willUpdate(changedProps: PropertyValues): void {

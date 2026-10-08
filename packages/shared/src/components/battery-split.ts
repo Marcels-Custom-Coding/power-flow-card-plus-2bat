@@ -16,8 +16,31 @@ const CIRCLE_CENTERS = { battery: 40, battery2: FORK_WIDTH - 40 };
 /* when the slot right of the batteries is taken, both circles move left by half a circle distance */
 export const BATTERY_SPLIT_SHIFT = (CIRCLE_CENTERS.battery2 - CIRCLE_CENTERS.battery) / 2;
 
-const forkPath = (field: "battery" | "battery2", shiftLeft: boolean) => {
-  const start = FORK_WIDTH / 2 + (shiftLeft ? BATTERY_SPLIT_SHIFT : 0);
+export const forkJunctionX = (shiftLeft: boolean) =>
+  FORK_WIDTH / 2 + (shiftLeft ? BATTERY_SPLIT_SHIFT : 0);
+
+/** a line from the visible end of a battery line down to the fork, in fork coordinates */
+export type ForkLink = { d: string; stroke: string; opacity: string };
+
+/** lowest point of a path that is still inside its (cropped) svg, in screen coordinates */
+export const visibleLineEnd = (path: SVGPathElement): { x: number; y: number } | undefined => {
+  const matrix = path.getScreenCTM();
+  const box = path.ownerSVGElement?.getBoundingClientRect();
+  if (!matrix || !box) return undefined;
+  const length = path.getTotalLength();
+  let lowest: { x: number; y: number } | undefined;
+  for (let step = 0; step <= 200; step++) {
+    const point = path.getPointAtLength((length * step) / 200);
+    const x = point.x * matrix.a + point.y * matrix.c + matrix.e;
+    const y = point.x * matrix.b + point.y * matrix.d + matrix.f;
+    if (y > box.bottom + 0.5 || x < box.left - 0.5 || x > box.right + 0.5) continue;
+    if (!lowest || y > lowest.y) lowest = { x, y };
+  }
+  return lowest;
+};
+
+const forkPath = (field: "battery" | "battery2", shiftLeft: boolean, offset: number) => {
+  const start = forkJunctionX(shiftLeft) + offset;
   const end = CIRCLE_CENTERS[field];
   return `M${start},0 C${start},${FORK_HEIGHT * 0.6} ${end},${FORK_HEIGHT * 0.4} ${end},${FORK_HEIGHT}`;
 };
@@ -26,7 +49,8 @@ const forkBranch = (
   config: FlowCardPlusConfig,
   unit: any,
   field: "battery" | "battery2",
-  shiftLeft: boolean
+  shiftLeft: boolean,
+  offset: number
 ) => {
   const power = Math.max(unit.state.toBattery ?? 0, unit.state.fromBattery ?? 0);
   if (!showLine(config, power)) return nothing;
@@ -35,7 +59,7 @@ const forkBranch = (
   return svg`<path
       id="battery-fork-${field}"
       class="${direction} ${styleLine(power, config)}"
-      d="${forkPath(field, shiftLeft)}"
+      d="${forkPath(field, shiftLeft, offset)}"
     ></path>
     ${checkShouldShowDots(config) && power > 0
       ? svg`<circle r="1.75" class="${direction}">
@@ -59,7 +83,16 @@ export const batterySplitElement = (
     units,
     entities,
     shiftLeft = false,
-  }: { units: [any, any]; entities: ConfigEntities; shiftLeft?: boolean }
+    offset = 0,
+    links = [],
+  }: {
+    units: [any, any];
+    entities: ConfigEntities;
+    shiftLeft?: boolean;
+    /** horizontal distance in px between the fork center and the point where the lines meet */
+    offset?: number;
+    links?: ForkLink[];
+  }
 ) => {
   return html`<div class="battery-split ${shiftLeft ? "shift-left" : ""}">
     <svg
@@ -68,8 +101,15 @@ export const batterySplitElement = (
       height=${FORK_HEIGHT}
       viewBox="0 0 ${FORK_WIDTH} ${FORK_HEIGHT}"
     >
-      ${forkBranch(config, units[0], "battery", shiftLeft)}
-      ${forkBranch(config, units[1], "battery2", shiftLeft)}
+      ${links.map(
+        (link) => svg`<path
+            class="battery-fork-link"
+            d="${link.d}"
+            style="stroke: ${link.stroke}; opacity: ${link.opacity}"
+          ></path>`
+      )}
+      ${forkBranch(config, units[0], "battery", shiftLeft, offset)}
+      ${forkBranch(config, units[1], "battery2", shiftLeft, offset)}
     </svg>
     <div class="battery-split-circles">
       ${batteryElement(main, config, {

@@ -1,5 +1,12 @@
 # power-flow-card-plus
 
+## 0.4.3
+
+### Patch Changes
+
+- Second battery takes display options it does not set itself (e.g. `display_state: one_way`) from the first battery.
+- Separate batteries: the battery lines now meet in one point and continue into the fork at every card width.
+
 ## 0.4.2
 
 ### Patch Changes

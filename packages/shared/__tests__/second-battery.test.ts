@@ -6,6 +6,7 @@ import {
   computeBatteryIcon,
   computeBatteryUnitStyle,
   getBatteryMode,
+  inheritBatteryDisplayOptions,
 } from "../src/utils/compute-second-battery";
 
 describe("second battery", () => {
@@ -61,5 +62,26 @@ describe("second battery", () => {
         fromBattery: 500,
       })
     ).toContain("--circle-battery-color: var(--energy-battery-in-color)");
+  });
+
+  test("second battery takes display options of the first one unless set itself", () => {
+    const first = {
+      entity: "sensor.byd",
+      display_state: "one_way",
+      color_value: false,
+      invert_state: true,
+    };
+    expect(inheritBatteryDisplayOptions(first, { entity: "sensor.marstek" })).toEqual({
+      entity: "sensor.marstek",
+      display_state: "one_way",
+      color_value: false,
+    });
+    expect(
+      inheritBatteryDisplayOptions(first, { entity: "sensor.marstek", display_state: "two_way" })
+        .display_state
+    ).toBe("two_way");
+    expect(inheritBatteryDisplayOptions(undefined, { entity: "sensor.marstek" })).toEqual({
+      entity: "sensor.marstek",
+    });
   });
 });

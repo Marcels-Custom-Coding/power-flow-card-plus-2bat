@@ -86,3 +86,38 @@ export const computeBatteryUnitStyle = (
   );
   return `--circle-battery-color: ${circle}; --icon-battery-color: ${icon}; --text-battery-state-of-charge-color: ${stateOfCharge};`;
 };
+
+/* options that only change how a battery is shown, not which sensor it reads */
+const INHERITED_DISPLAY_OPTIONS = [
+  "display_state",
+  "display_zero",
+  "display_zero_tolerance",
+  "color_value",
+  "color_icon",
+  "color_circle",
+  "color_state_of_charge_value",
+  "state_of_charge_unit",
+  "state_of_charge_unit_white_space",
+  "state_of_charge_decimals",
+  "unit_of_measurement",
+  "unit_white_space",
+  "decimals",
+] as const;
+
+/**
+ * The second battery looks like the first one unless it is configured differently,
+ * e.g. display_state: one_way on the first battery also applies to the second.
+ */
+export const inheritBatteryDisplayOptions = <T extends Record<string, any>>(
+  first: Record<string, any> | undefined,
+  second: T
+): T => {
+  if (!first) return second;
+  const inherited: Record<string, unknown> = {};
+  INHERITED_DISPLAY_OPTIONS.forEach((option) => {
+    if (first[option] !== undefined && second[option] === undefined) {
+      inherited[option] = first[option];
+    }
+  });
+  return { ...inherited, ...second } as T;
+};
