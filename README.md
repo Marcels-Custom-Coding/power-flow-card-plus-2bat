@@ -1,6 +1,6 @@
-# Power Flow Card Plus – mit zweiter Batterie
+# Power Flow Card Plus – 2 Batterien
 
-Fork von [flixlix/flixlix-cards](https://github.com/flixlix/flixlix-cards). Einziger Unterschied zum Original: Die **Power Flow Card Plus** kann eine zweite Batterie anzeigen (`entities.battery2`).
+Fork von [flixlix/flixlix-cards](https://github.com/flixlix/flixlix-cards). Einziger Unterschied zum Original: Die **Power Flow Card Plus** kann eine zweite Batterie anzeigen (`entities.battery2`). Die Karte heißt im Dashboard „Power Flow Card Plus – 2 Batterien“ und hat den eigenen Typ `custom:power-flow-card-plus-2bat`, sie läuft also neben dem Original.
 
 - `mode: separate` – eigener Kreis neben der ersten Batterie, beide über eine kleine Gabel angebunden. Jede Batterie zeigt ihren eigenen Ladestand und ihre eigene Leistung.
 - `mode: combined` – beide Batterien in einem gemeinsamen Kreis, Leistung addiert, Ladestände nebeneinander (oder als Mittelwert mit `combined_state_of_charge: average`).
@@ -8,7 +8,7 @@ Fork von [flixlix/flixlix-cards](https://github.com/flixlix/flixlix-cards). Einz
 Lädt eine Batterie die andere, zählt das nicht als Fluss zum Haus oder Netz; im getrennten Modus sieht man es an der Gabel.
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-plus-2bat
 entities:
   grid:
     entity: sensor.netz_leistung
@@ -25,20 +25,26 @@ entities:
     state_of_charge: sensor.marstek_ladestand
 ```
 
-Alle Optionen: [Second Battery Configuration](packages/flixlix-cards/power-flow-card-plus/README.md#second-battery-configuration). Im visuellen Editor gibt es dafür die Seite „Zweite Batterie“.
+### Im Editor
+
+Dashboard bearbeiten → Karte hinzufügen → „Power Flow Card Plus – 2 Batterien“. Im Karten-Editor steht direkt unter „Batterie“ der Punkt **„Zweite Batterie“**: Modus wählen (eigener Kreis oder gemeinsamer Kreis), Leistungs-Entität und Ladezustand eintragen, fertig. Die Optionen für den gemeinsamen Kreis erscheinen erst, wenn dieser Modus gewählt ist.
+
+Eine bestehende Karte des Originals übernimmst du, indem du im YAML-Editor `type: custom:power-flow-card-plus` in `type: custom:power-flow-card-plus-2bat` änderst.
+
+Alle Optionen: [Second Battery Configuration](packages/flixlix-cards/power-flow-card-plus/README.md#second-battery-configuration).
 
 ### Installation
 
-**HACS:** HACS → Benutzerdefinierte Repositories → `https://github.com/Marcels-Custom-Coding/power-flow-card-plus-2bat`, Typ „Dashboard“. Die originale Power Flow Card Plus vorher entfernen, weil beide denselben Kartentyp `custom:power-flow-card-plus` belegen. Bestehende Karten laufen unverändert weiter.
+**HACS:** HACS → Benutzerdefinierte Repositories → `https://github.com/Marcels-Custom-Coding/power-flow-card-plus-2bat`, Typ „Dashboard“. Das Original darf installiert bleiben.
 
-**Ohne HACS:** [`dist/power-flow-card-plus.js`](dist/power-flow-card-plus.js) nach `/config/www/` kopieren und als Dashboard-Ressource `/local/power-flow-card-plus.js` (JavaScript-Modul) eintragen.
+**Ohne HACS:** [`dist/power-flow-card-plus-2bat.js`](dist/power-flow-card-plus-2bat.js) nach `/config/www/` kopieren und als Dashboard-Ressource `/local/power-flow-card-plus-2bat.js` (JavaScript-Modul) eintragen.
 
 ### Selbst bauen
 
 ```bash
 corepack pnpm install --filter power-flow-card-plus...
 cd packages/flixlix-cards/power-flow-card-plus && corepack pnpm exec rollup -c
-cp dist/power-flow-card-plus.js ../../../dist/
+cp dist/power-flow-card-plus.js ../../../dist/power-flow-card-plus-2bat.js
 ```
 
 ---

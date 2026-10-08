@@ -91,14 +91,15 @@ import { customElement, property, query, state } from "lit/decorators.js";
 import packageJson from "../package.json" with { type: "json" };
 
 registerCustomCard({
-  type: "power-flow-card-plus",
-  name: "Power Flow Card Plus",
+  type: "power-flow-card-plus-2bat",
+  name: "Power Flow Card Plus – 2 Batterien",
   description:
-    "An extended version of the power flow card with richer options, advanced features and a few small UI enhancements. Inspired by the Energy Dashboard.",
+    "Power Flow Card Plus mit zweiter Batterie: als eigener Kreis oder zusammen mit der ersten Batterie.",
   version: packageJson.version,
+  documentationURL: "https://github.com/Marcels-Custom-Coding/power-flow-card-plus-2bat",
 });
 
-@customElement("power-flow-card-plus")
+@customElement("power-flow-card-plus-2bat")
 export class PowerFlowCardPlus extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config = {} as PowerFlowCardPlusConfig;
@@ -201,7 +202,7 @@ export class PowerFlowCardPlus extends LitElement {
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
     await import("./ui-editor/ui-editor");
-    return document.createElement("power-flow-card-plus-editor");
+    return document.createElement("power-flow-card-plus-2bat-editor");
   }
 
   public static getStubConfig(hass: HomeAssistant): object {

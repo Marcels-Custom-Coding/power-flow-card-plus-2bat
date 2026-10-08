@@ -106,41 +106,48 @@ export const batterySchema = [
   },
 ] as const;
 
-export const battery2Schema = [
-  {
-    name: "mode",
-    selector: {
-      select: {
-        options: [
-          { value: "separate", label: localize("editor.battery_mode_separate") },
-          { value: "combined", label: localize("editor.battery_mode_combined") },
-        ],
-        mode: "dropdown",
-      },
+const battery2ModeSchema = {
+  name: "mode",
+  selector: {
+    select: {
+      options: [
+        { value: "separate", label: localize("editor.battery_mode_separate") },
+        { value: "combined", label: localize("editor.battery_mode_combined") },
+      ],
+      mode: "dropdown",
     },
   },
-  {
-    name: "",
-    type: "grid",
-    column_min_width: "200px",
-    schema: [
-      {
-        name: "combined_state_of_charge",
-        selector: {
-          select: {
-            options: [
-              { value: "both", label: localize("editor.combined_state_of_charge_both") },
-              { value: "average", label: localize("editor.combined_state_of_charge_average") },
-            ],
-            mode: "dropdown",
-          },
+};
+
+const battery2CombinedSchema = {
+  name: "",
+  type: "grid",
+  column_min_width: "200px",
+  schema: [
+    {
+      name: "combined_state_of_charge",
+      selector: {
+        select: {
+          options: [
+            { value: "both", label: localize("editor.combined_state_of_charge_both") },
+            { value: "average", label: localize("editor.combined_state_of_charge_average") },
+          ],
+          mode: "dropdown",
         },
       },
-      {
-        name: "combined_name",
-        selector: { text: {} },
-      },
-    ],
-  },
+    },
+    {
+      name: "combined_name",
+      selector: { text: {} },
+    },
+  ],
+};
+
+/* the options for the shared circle only show up once that mode is picked */
+export const getBattery2Schema = (mode: string | undefined) => [
+  battery2ModeSchema,
+  ...(mode === "combined" ? [battery2CombinedSchema] : []),
   ...batterySchema,
-] as const;
+];
+
+export const battery2Schema = getBattery2Schema("combined");

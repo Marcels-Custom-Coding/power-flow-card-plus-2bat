@@ -7,7 +7,11 @@ import {
 import "@flixlix-cards/shared/ui-editor/components/individual-devices-editor";
 import "@flixlix-cards/shared/ui-editor/components/link-subpage";
 import "@flixlix-cards/shared/ui-editor/components/subpage-header";
-import { battery2Schema, batterySchema } from "@flixlix-cards/shared/ui-editor/schema/battery";
+import {
+  battery2Schema,
+  batterySchema,
+  getBattery2Schema,
+} from "@flixlix-cards/shared/ui-editor/schema/battery";
 import { nonFossilSchema } from "@flixlix-cards/shared/ui-editor/schema/fossil-fuel-percentage";
 import { gridSchema } from "@flixlix-cards/shared/ui-editor/schema/grid";
 import { homeSchema } from "@flixlix-cards/shared/ui-editor/schema/home";
@@ -66,7 +70,7 @@ const CONFIG_PAGES: {
   },
 ];
 
-@customElement("power-flow-card-plus-editor")
+@customElement("power-flow-card-plus-2bat-editor")
 export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config?: PowerFlowCardPlusConfig;
@@ -222,13 +226,13 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
       if (this._currentConfigPage === "individual") {
         return html`
           ${this._renderLegacyFieldsAlert()}${this._renderLegacyIndividualFieldsAlert()}
-          <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}>
-          </subpage-header>
-          <individual-devices-editor
+          <subpage-header-2bat @go-back=${this._goBack} page=${this._currentConfigPage}>
+          </subpage-header-2bat>
+          <individual-devices-editor-2bat
             .hass=${this.hass}
             .config=${this._config}
             @config-changed=${this._valueChanged}
-          ></individual-devices-editor>
+          ></individual-devices-editor-2bat>
         `;
       }
 
@@ -239,11 +243,19 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
               localize,
               this._config.display_zero_lines?.mode ?? defaultValues.displayZeroLines.mode
             )
-          : CONFIG_PAGES.find((page) => page.page === currentPage)?.schema;
-      const dataForForm = currentPage === "advanced" ? data : data.entities[currentPage];
+          : currentPage === "battery2"
+            ? getBattery2Schema(data.entities.battery2?.mode)
+            : CONFIG_PAGES.find((page) => page.page === currentPage)?.schema;
+      const dataForForm =
+        currentPage === "advanced"
+          ? data
+          : currentPage === "battery2"
+            ? { mode: "separate", ...data.entities.battery2 }
+            : data.entities[currentPage];
       return html`
         ${this._renderLegacyFieldsAlert()}${this._renderLegacyIndividualFieldsAlert()}
-        <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </subpage-header>
+        <subpage-header-2bat @go-back=${this._goBack} page=${this._currentConfigPage}>
+        </subpage-header-2bat>
         <ha-form
           .hass=${this.hass}
           .data=${dataForForm}
@@ -266,13 +278,13 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
       };
       const icon = getIconToUse();
       return html`
-        <link-subpage
+        <link-subpage-2bat
           path=${page}
           header="${localize(`editor.${page}`)}"
           @open-sub-element-editor=${() => this._editDetailElement(page)}
           icon=${icon}
         >
-        </link-subpage>
+        </link-subpage-2bat>
       `;
     };
 
@@ -382,6 +394,6 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
 
 declare global {
   interface HTMLElementTagNameMap {
-    "power-flow-card-plus-editor": PowerFlowCardPlusEditor;
+    "power-flow-card-plus-2bat-editor": PowerFlowCardPlusEditor;
   }
 }

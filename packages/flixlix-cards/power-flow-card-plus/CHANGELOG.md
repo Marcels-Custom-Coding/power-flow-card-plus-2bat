@@ -1,5 +1,12 @@
 # power-flow-card-plus
 
+## 0.4.1
+
+### Patch Changes
+
+- Own card type `custom:power-flow-card-plus-2bat` and name “Power Flow Card Plus – 2 Batterien”, so the fork can be told apart from the original in the card picker and both can be installed at the same time.
+- Visual editor: the options for the shared circle only show up when that mode is picked.
+
 ## 0.4.0
 
 ### Minor Changes

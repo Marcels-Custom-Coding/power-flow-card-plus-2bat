@@ -221,6 +221,8 @@ At least one of _grid_, _battery_, or _solar_ is required. All entites (except _
 
 #### Second Battery Configuration
 
+This fork registers its own card type `custom:power-flow-card-plus-2bat` (shown as “Power Flow Card Plus – 2 Batterien”), so it can be installed next to the original. In the visual editor the second battery has its own page right below “Battery”.
+
 `battery2` accepts every option of the [Battery Configuration](#battery-configuration) and a few more:
 
 | Name                     | Type                     | Default                | Description                                                                                                                                                                                  |
@@ -232,7 +234,7 @@ At least one of _grid_, _battery_, or _solar_ is required. All entites (except _
 Power moving straight from one battery into the other is not counted as going to home or grid. In `separate` mode the fork shows it: one branch flows up, the other one down.
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-plus-2bat
 entities:
   grid:
     entity: sensor.grid_power

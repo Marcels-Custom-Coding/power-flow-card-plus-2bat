@@ -21,7 +21,7 @@ export class LinkSubpage extends LitElement {
   protected render(): TemplateResult {
     return html`
       <div
-        class="link-subpage"
+        class="link-subpage-2bat"
         @click=${this._openSubElementPage}
         @keydown=${this._openSubElementPage}
         @focus=${this._focusChanged}
@@ -111,13 +111,13 @@ export class LinkSubpage extends LitElement {
   }
 }
 
-if (!customElements.get("link-subpage")) {
-  customElements.define("link-subpage", LinkSubpage);
+if (!customElements.get("link-subpage-2bat")) {
+  customElements.define("link-subpage-2bat", LinkSubpage);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "link-subpage": LinkSubpage;
+    "link-subpage-2bat": LinkSubpage;
   }
 
   // for fire event

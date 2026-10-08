@@ -237,13 +237,13 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
       if (this._currentConfigPage === "individual") {
         return html`
           ${this._renderLegacyFieldsAlert()} ${this._renderLegacyIndividualFieldsAlert()}
-          <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}>
-          </subpage-header>
-          <individual-devices-editor
+          <subpage-header-2bat @go-back=${this._goBack} page=${this._currentConfigPage}>
+          </subpage-header-2bat>
+          <individual-devices-editor-2bat
             .hass=${this.hass}
             .config=${this._config}
             @config-changed=${this._valueChanged}
-          ></individual-devices-editor>
+          ></individual-devices-editor-2bat>
         `;
       }
 
@@ -258,7 +258,8 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
       const dataForForm = currentPage === "advanced" ? data : data.entities[currentPage];
       return html`
         ${this._renderLegacyFieldsAlert()} ${this._renderLegacyIndividualFieldsAlert()}
-        <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </subpage-header>
+        <subpage-header-2bat @go-back=${this._goBack} page=${this._currentConfigPage}>
+        </subpage-header-2bat>
         <ha-form
           .hass=${this.hass}
           .data=${dataForForm}
@@ -281,13 +282,13 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
       };
       const icon = getIconToUse();
       return html`
-        <link-subpage
+        <link-subpage-2bat
           path=${page}
           header="${localize(`editor.${page}`)}"
           @open-sub-element-editor=${() => this._editDetailElement(page)}
           icon=${icon}
         >
-        </link-subpage>
+        </link-subpage-2bat>
       `;
     };
 
