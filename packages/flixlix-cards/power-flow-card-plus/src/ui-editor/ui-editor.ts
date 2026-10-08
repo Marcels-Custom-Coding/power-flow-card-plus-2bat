@@ -246,12 +246,16 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
           : currentPage === "battery2"
             ? getBattery2Schema(data.entities.battery2?.mode)
             : CONFIG_PAGES.find((page) => page.page === currentPage)?.schema;
+      /* switches show what the card does when an option is not set, otherwise an untouched switch
+         reads "off" while the state of charge is shown and flipping it hides it */
       const dataForForm =
         currentPage === "advanced"
           ? data
           : currentPage === "battery2"
-            ? { mode: "separate", ...data.entities.battery2 }
-            : data.entities[currentPage];
+            ? { mode: "separate", show_state_of_charge: true, ...data.entities.battery2 }
+            : currentPage === "battery"
+              ? { show_state_of_charge: true, ...data.entities.battery }
+              : data.entities[currentPage];
       return html`
         ${this._renderLegacyFieldsAlert()}${this._renderLegacyIndividualFieldsAlert()}
         <subpage-header-2bat @go-back=${this._goBack} page=${this._currentConfigPage}>

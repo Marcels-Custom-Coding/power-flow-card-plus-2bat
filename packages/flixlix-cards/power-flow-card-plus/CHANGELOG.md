@@ -1,5 +1,11 @@
 # power-flow-card-plus
 
+## 0.4.5
+
+### Patch Changes
+
+- Visual editor: "Show state of charge" is on when not set, matching what the card does. Before it read "off" and switching it actually hid the state of charge.
+
 ## 0.4.4
 
 ### Patch Changes
