@@ -1,5 +1,6 @@
 import { batteryElement } from "@flixlix-cards/shared/components/battery";
 import {
+  type BatteryGroupInfo,
   batterySplitElement,
   getBatterySplitStyle,
   type LineEnd,
@@ -507,6 +508,7 @@ export class PowerFlowCardPlus extends LitElement {
                         !!individualFieldLeftBottom && checkHasRightIndividual(individualObjs),
                       style: getBatterySplitStyle(entities.battery2?.split_style),
                       lineEnds: this._batteryLineEnds,
+                      groupInfo: this._batteryGroupInfo(),
                     })
                   : battery.has
                     ? batteryElement(this, this._config, {
@@ -573,6 +575,30 @@ export class PowerFlowCardPlus extends LitElement {
 
     this._measureBatteryLineEnds();
     this._tryConnectAll();
+  }
+
+  private _batteryGroupInfo(): BatteryGroupInfo {
+    const battery2 = this._config.entities.battery2;
+    const stateOfChargeEntity = battery2?.group_state_of_charge;
+    const powerEntity = battery2?.group_power;
+    return {
+      stateOfCharge: stateOfChargeEntity
+        ? {
+            entity: stateOfChargeEntity,
+            state: getEntityState(this.hass, stateOfChargeEntity),
+            decimals: battery2?.state_of_charge_decimals ?? 0,
+          }
+        : undefined,
+      power:
+        powerEntity && doesEntityExist(this.hass, powerEntity)
+          ? {
+              entity: powerEntity,
+              state:
+                getEntityStateWatts(this.hass, powerEntity) *
+                (battery2?.group_invert_power ? -1 : 1),
+            }
+          : undefined,
+    };
   }
 
   /* The battery lines are drawn in a cropped svg whose visible end depends on the card width,

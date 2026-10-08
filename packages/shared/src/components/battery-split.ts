@@ -4,6 +4,7 @@ import {
   type FlowCardPlusConfig,
 } from "@flixlix-cards/shared/types";
 import { checkShouldShowDots } from "@flixlix-cards/shared/utils/check-should-show-dots";
+import { displayValue } from "@flixlix-cards/shared/utils/display-value";
 import { showLine } from "@flixlix-cards/shared/utils/show-line";
 import { styleLine } from "@flixlix-cards/shared/utils/style-line";
 import { html, nothing, svg } from "lit";
@@ -28,6 +29,12 @@ const BATTERY_SPLIT_SHIFT = (CIRCLE_CENTERS.battery2 - CIRCLE_CENTERS.battery) /
 
 /** where a battery line stops being visible, in fork coordinates */
 export type LineEnd = { id: string; x: number; y: number; stroke: string; opacity: string };
+
+/** values for both batteries together, shown on the frame of the group style */
+export type BatteryGroupInfo = {
+  stateOfCharge: { entity: string; state: number | null; decimals: number } | undefined;
+  power: { entity: string; state: number } | undefined;
+};
 
 /** lowest point of a path that is still inside its (cropped) svg, in screen coordinates */
 export const visibleLineEnd = (path: SVGPathElement): { x: number; y: number } | undefined => {
@@ -139,6 +146,49 @@ const branch = (
       : nothing}`;
 };
 
+const groupBadge = (
+  main: CardMainContext,
+  config: FlowCardPlusConfig,
+  info: BatteryGroupInfo | undefined
+) => {
+  const stateOfCharge = info?.stateOfCharge;
+  const power = info?.power;
+  if (!stateOfCharge && !power) return nothing;
+  const openEntity = (entity: string) => (event: MouseEvent) =>
+    main.onEntityClick(event, undefined, entity);
+  return html`<div class="battery-group-badge">
+    ${stateOfCharge && stateOfCharge.state !== null
+      ? html`<span class="battery-group-state-of-charge" @click=${openEntity(stateOfCharge.entity)}
+          >${displayValue(main.hass, config, stateOfCharge.state, {
+            unit: "%",
+            unitWhiteSpace: true,
+            decimals: stateOfCharge.decimals,
+            accept_negative: true,
+          })}</span
+        >`
+      : nothing}
+    ${stateOfCharge && stateOfCharge.state !== null && power
+      ? html`<span class="battery-soc-separator">·</span>`
+      : nothing}
+    ${power
+      ? html`<span
+          class="battery-group-power ${power.state > 0
+            ? "battery-out"
+            : power.state < 0
+              ? "battery-in"
+              : ""}"
+          @click=${openEntity(power.entity)}
+          >${power.state !== 0
+            ? html`<ha-icon
+                class="small"
+                .icon=${power.state > 0 ? "mdi:arrow-up" : "mdi:arrow-down"}
+              ></ha-icon>`
+            : nothing}${displayValue(main.hass, config, Math.abs(power.state), {})}</span
+        >`
+      : nothing}
+  </div>`;
+};
+
 export const batterySplitElement = (
   main: CardMainContext,
   config: FlowCardPlusConfig,
@@ -148,12 +198,14 @@ export const batterySplitElement = (
     style = "group",
     shiftLeft = false,
     lineEnds = [],
+    groupInfo,
   }: {
     units: [any, any];
     entities: ConfigEntities;
     style?: BatterySplitStyle;
     shiftLeft?: boolean;
     lineEnds?: LineEnd[];
+    groupInfo?: BatteryGroupInfo;
   }
 ) => {
   const x = meetingX(lineEnds, shiftLeft);
@@ -191,6 +243,10 @@ export const batterySplitElement = (
         : svg`${branch(config, style, units[0], "battery", x)}
             ${branch(config, style, units[1], "battery2", x)}`}
     </svg>
-    ${style === "group" ? html`<div class="battery-group-frame">${circles}</div>` : circles}
+    ${style === "group"
+      ? html`<div class="battery-group-frame">
+          ${circles}${groupBadge(main, config, groupInfo)}
+        </div>`
+      : circles}
   </div>`;
 };

@@ -81,6 +81,12 @@ interface SecondBattery extends Battery {
   mode?: "separate" | "combined";
   /** only for mode separate: how the lines reach both batteries */
   split_style?: "group" | "bus" | "node";
+  /** only for split_style group: state of charge of both batteries together, shown on the frame */
+  group_state_of_charge?: string;
+  /** only for split_style group: power of both batteries together, positive while discharging */
+  group_power?: string;
+  /** only for split_style group: group_power is positive while charging */
+  group_invert_power?: boolean;
   /** only for mode combined: show both values or their average */
   combined_state_of_charge?: "both" | "average";
   /** only for mode combined: label below the shared circle */

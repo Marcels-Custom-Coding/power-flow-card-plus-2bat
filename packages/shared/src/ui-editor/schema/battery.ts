@@ -157,10 +157,26 @@ const battery2SplitStyleSchema = {
   },
 };
 
-/* options only show up for the mode they belong to */
-export const getBattery2Schema = (mode: string | undefined) => [
+const battery2GroupSchema = {
+  name: "",
+  type: "grid",
+  column_min_width: "200px",
+  schema: [
+    { name: "group_state_of_charge", selector: { entity: {} } },
+    { name: "group_power", selector: { entity: {} } },
+    { name: "group_invert_power", selector: { boolean: {} } },
+  ],
+};
+
+/* options only show up for the mode and style they belong to */
+export const getBattery2Schema = (mode: string | undefined, splitStyle?: string) => [
   battery2ModeSchema,
-  ...(mode === "combined" ? [battery2CombinedSchema] : [battery2SplitStyleSchema]),
+  ...(mode === "combined"
+    ? [battery2CombinedSchema]
+    : [
+        battery2SplitStyleSchema,
+        ...(splitStyle === "bus" || splitStyle === "node" ? [] : [battery2GroupSchema]),
+      ]),
   ...batterySchema,
 ];
 

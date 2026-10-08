@@ -14,6 +14,8 @@ Wie die Linien von Netz, PV und Haus bei deinen beiden Batterien ankommen, suchs
 | **B** | Knotenpunkt – alles läuft in einen kleinen Ring, der Punkt darin zeigt, ob gerade geladen oder entladen wird                  | „Knotenpunkt“               | `split_style: node`             |
 | **C** | Batterie-Gruppe – ein Rahmen fasst beide zu einem Speicher zusammen, die Linien treffen sich wie bei einer einzelnen Batterie | „Rahmen um beide Batterien“ | `split_style: group` (Standard) |
 
+Bei **C** kann der Rahmen zusätzlich den Gesamt-Ladestand und die Gesamtleistung beider Batterien zeigen, wenn du dafür eigene Entitäten hast. Sie erscheinen als kleines Schild auf der Unterkante des Rahmens. Im Editor heißen die Felder „Ladestand beider Batterien (Rahmen)“ und „Leistung beider Batterien (Rahmen)“, im YAML `group_state_of_charge` und `group_power`. Positive Leistung bedeutet Entladen; ist es bei deinem Sensor umgekehrt, hilft `group_invert_power: true`.
+
 Lieber einen einzigen Kreis? Mit `mode: combined` teilen sich beide Batterien einen Kreis: Leistung zusammengerechnet, Ladestände nebeneinander oder als Mittelwert (`combined_state_of_charge: average`).
 
 Lädt eine Batterie die andere, zählt das nicht als Strom zum Haus oder ins Netz – die Karte rechnet das sauber heraus. Was du bei der ersten Batterie einstellst (etwa nur eine Richtung anzeigen), gilt automatisch auch für die zweite, solange du dort nichts anderes wählst.
@@ -35,6 +37,8 @@ entities:
     name: Marstek
     mode: separate
     split_style: group
+    group_state_of_charge: sensor.akku_ladestand_gesamt
+    group_power: sensor.akku_leistung_gesamt
     entity: sensor.marstek_leistung
     state_of_charge: sensor.marstek_ladestand
 ```

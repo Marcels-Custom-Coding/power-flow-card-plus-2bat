@@ -636,13 +636,31 @@ export const styles = css`
   }
   .card-content.has-battery-split.battery-split-group .lines.high,
   .card-content.has-battery-split.battery-split-group .right-individual-flow-container {
-    /* group: 20px for the lines to meet, frame border and padding 4.5px each side */
-    bottom: 129px;
+    /* group: 20px for the lines to meet, frame border (1.5px each) and padding 3px top, 10px
+       bottom so the badge on the lower edge stays clear of the labels */
+    bottom: 136px;
   }
   .battery-group-frame {
+    position: relative;
     border: 1.5px solid color-mix(in srgb, var(--circle-battery-color) 55%, transparent);
     border-radius: 56px;
-    padding: 3px 8px;
+    padding: 3px 8px 10px;
+  }
+  .battery-group-badge {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+    padding: 0 8px;
+    border-radius: 9px;
+    background: var(--card-background-color, var(--ha-card-background, #fff));
+    color: var(--primary-text-color);
+    font-size: 12px;
+    line-height: 18px;
+    white-space: nowrap;
+  }
+  .battery-group-badge > span {
+    cursor: var(--clickable-cursor);
   }
   line.battery-hub {
     stroke: var(--disabled-text-color);

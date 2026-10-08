@@ -1,5 +1,11 @@
 # power-flow-card-plus
 
+## 0.6.0
+
+### Minor Changes
+
+- Battery group frame (`split_style: group`) can show the state of charge and power of both batteries together from your own entities: `group_state_of_charge`, `group_power`, `group_invert_power`. Clicking a value opens its entity.
+
 ## 0.5.0
 
 ### Minor Changes

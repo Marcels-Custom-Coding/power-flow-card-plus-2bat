@@ -244,7 +244,7 @@ export class PowerFlowCardPlusEditor extends LitElement implements LovelaceCardE
               this._config.display_zero_lines?.mode ?? defaultValues.displayZeroLines.mode
             )
           : currentPage === "battery2"
-            ? getBattery2Schema(data.entities.battery2?.mode)
+            ? getBattery2Schema(data.entities.battery2?.mode, data.entities.battery2?.split_style)
             : CONFIG_PAGES.find((page) => page.page === currentPage)?.schema;
       /* switches show what the card does when an option is not set, otherwise an untouched switch
          reads "off" while the state of charge is shown and flipping it hides it */
