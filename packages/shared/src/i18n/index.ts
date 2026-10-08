@@ -50,12 +50,21 @@ function getTranslatedString(key: string, lang: string): string | undefined {
   }
 }
 
+/* HA only writes selectedLanguage to localStorage when the language was picked in this browser,
+   otherwise the language lives in the user profile, so fall back to the running frontend */
+const getLanguage = (): string => {
+  const stored = localStorage.getItem("selectedLanguage");
+  if (stored) return stored;
+  const hass = (document.querySelector("home-assistant") as any)?.hass;
+  return hass?.locale?.language || hass?.language || navigator.language || defaultLang;
+};
+
 export function setupCustomlocalize(key: string) {
-  const lang = (localStorage.getItem("selectedLanguage") || "en")
-    .replace(/['"]+/g, "")
-    .replace("-", "_");
+  const lang = getLanguage().replace(/['"]+/g, "").replace("-", "_");
+  const baseLang = lang.split("_")[0];
 
   let translated = getTranslatedString(key, lang);
+  if (!translated && baseLang) translated = getTranslatedString(key, baseLang);
   if (!translated) translated = getTranslatedString(key, defaultLang);
   return translated ?? key;
 }

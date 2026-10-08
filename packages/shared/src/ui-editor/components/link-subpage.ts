@@ -21,7 +21,7 @@ export class LinkSubpage extends LitElement {
   protected render(): TemplateResult {
     return html`
       <div
-        class="link-subpage-2bat"
+        class="link-subpage"
         @click=${this._openSubElementPage}
         @keydown=${this._openSubElementPage}
         @focus=${this._focusChanged}

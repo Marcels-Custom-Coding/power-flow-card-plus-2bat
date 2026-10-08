@@ -1,5 +1,12 @@
 # power-flow-card-plus
 
+## 0.4.2
+
+### Patch Changes
+
+- Visual editor: menu entries are one line again (icon, name, arrow side by side).
+- Visual editor follows the language of the Home Assistant user profile, not only a language picked in this browser.
+
 ## 0.4.1
 
 ### Patch Changes
