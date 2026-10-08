@@ -1,11 +1,18 @@
-import { batterySchema } from "@flixlix-cards/shared/ui-editor/schema/battery";
+import { battery2Schema, batterySchema } from "@flixlix-cards/shared/ui-editor/schema/battery";
 import { displayZeroLinesSchema } from "@flixlix-cards/shared/ui-editor/schema/display-zero-lines";
 import { nonFossilSchema } from "@flixlix-cards/shared/ui-editor/schema/fossil-fuel-percentage";
 import { gridSchema } from "@flixlix-cards/shared/ui-editor/schema/grid";
 import { homeSchema } from "@flixlix-cards/shared/ui-editor/schema/home";
 import { individualSchema } from "@flixlix-cards/shared/ui-editor/schema/individual";
 import { solarSchema } from "@flixlix-cards/shared/ui-editor/schema/solar";
-import { mdiBatteryHigh, mdiHome, mdiLeaf, mdiTransmissionTower, mdiWeatherSunny } from "@mdi/js";
+import {
+  mdiBatteryHigh,
+  mdiBatteryPlusVariant,
+  mdiHome,
+  mdiLeaf,
+  mdiTransmissionTower,
+  mdiWeatherSunny,
+} from "@mdi/js";
 import memoizeOne from "memoize-one";
 import { any, assign, boolean, integer, number, object, optional, string } from "superstruct";
 
@@ -49,6 +56,7 @@ export const cardConfigStruct = assign(
     no_labels: optional(boolean()),
     entities: object({
       battery: optional(any()),
+      battery2: optional(any()),
       grid: optional(any()),
       solar: optional(any()),
       home: optional(any()),
@@ -101,6 +109,13 @@ export const entitiesSchema = memoizeOne((localize) => [
         type: "expandable",
         iconPath: mdiBatteryHigh,
         schema: batterySchema,
+      },
+      {
+        title: localize("editor.battery2"),
+        name: "battery2",
+        type: "expandable",
+        iconPath: mdiBatteryPlusVariant,
+        schema: battery2Schema,
       },
       {
         title: localize("editor.fossil_fuel_percentage"),

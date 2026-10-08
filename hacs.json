@@ -1,0 +1,6 @@
+{
+  "name": "Power Flow Card Plus (zweite Batterie)",
+  "render_readme": true,
+  "homeassistant": "2023.12.3",
+  "filename": "power-flow-card-plus.js"
+}

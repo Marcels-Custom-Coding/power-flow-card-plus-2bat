@@ -605,4 +605,56 @@ export const styles = css`
   .pointer-events-none {
     pointer-events: none;
   }
+
+  /* second battery, shown as its own circle next to the first one */
+  .battery-split {
+    width: var(--size-circle-entity);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .battery-split .battery-fork {
+    flex-shrink: 0;
+    overflow: visible;
+  }
+  .battery-split-circles {
+    display: flex;
+    gap: 16px;
+  }
+  .battery-split .circle-container.battery {
+    height: auto;
+  }
+  .battery-split.shift-left > * {
+    transform: translateX(-48px);
+  }
+  .card-content.has-battery-split .lines.high,
+  .card-content.has-battery-split .right-individual-flow-container {
+    bottom: 120px;
+  }
+  .card-content.has-battery-split .circle-container.individual-bottom {
+    justify-content: flex-start;
+  }
+  path.battery-fork-in {
+    stroke: var(--energy-battery-in-color);
+  }
+  path.battery-fork-out {
+    stroke: var(--energy-battery-out-color);
+  }
+  circle.battery-fork-in,
+  circle.battery-fork-out {
+    stroke-width: 4;
+  }
+  circle.battery-fork-in {
+    stroke: var(--energy-battery-in-color);
+    fill: var(--energy-battery-in-color);
+  }
+  circle.battery-fork-out {
+    stroke: var(--energy-battery-out-color);
+    fill: var(--energy-battery-out-color);
+  }
+  .battery-soc-separator {
+    margin: 0 3px;
+    opacity: 0.6;
+  }
 `;

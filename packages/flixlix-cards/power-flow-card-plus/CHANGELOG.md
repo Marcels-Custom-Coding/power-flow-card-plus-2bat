@@ -1,5 +1,11 @@
 # power-flow-card-plus
 
+## 0.4.0
+
+### Minor Changes
+
+- Second battery (`entities.battery2`): either as its own circle next to the first battery (`mode: separate`, connected by a small fork) or added up in the circle of the first battery (`mode: combined`). Power moving from one battery into the other is not counted as home or grid flow.
+
 ## 0.3.7
 
 ### Patch Changes

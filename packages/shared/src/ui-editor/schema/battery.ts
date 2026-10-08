@@ -105,3 +105,42 @@ export const batterySchema = [
     schema: actionSchema,
   },
 ] as const;
+
+export const battery2Schema = [
+  {
+    name: "mode",
+    selector: {
+      select: {
+        options: [
+          { value: "separate", label: localize("editor.battery_mode_separate") },
+          { value: "combined", label: localize("editor.battery_mode_combined") },
+        ],
+        mode: "dropdown",
+      },
+    },
+  },
+  {
+    name: "",
+    type: "grid",
+    column_min_width: "200px",
+    schema: [
+      {
+        name: "combined_state_of_charge",
+        selector: {
+          select: {
+            options: [
+              { value: "both", label: localize("editor.combined_state_of_charge_both") },
+              { value: "average", label: localize("editor.combined_state_of_charge_average") },
+            ],
+            mode: "dropdown",
+          },
+        },
+      },
+      {
+        name: "combined_name",
+        selector: { text: {} },
+      },
+    ],
+  },
+  ...batterySchema,
+] as const;

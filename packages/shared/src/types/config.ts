@@ -76,6 +76,15 @@ interface Battery extends BaseConfigEntity {
   color?: ComboEntity;
 }
 
+interface SecondBattery extends Battery {
+  /** separate: own circle next to the first battery, combined: both batteries share one circle */
+  mode?: "separate" | "combined";
+  /** only for mode combined: show both values or their average */
+  combined_state_of_charge?: "both" | "average";
+  /** only for mode combined: label below the shared circle */
+  combined_name?: string;
+}
+
 interface Grid extends BaseConfigEntity {
   power_outage: GridPowerOutage;
   secondary_info?: SecondaryInfoType;
@@ -126,6 +135,7 @@ interface FossilFuelPercentage extends BaseConfigEntity {
 
 export type ConfigEntities = {
   battery?: Battery;
+  battery2?: SecondBattery;
   grid?: Grid;
   solar?: Solar;
   home?: Home;
@@ -137,6 +147,7 @@ export type ConfigEntities = {
 
 export type ConfigEntity =
   | Battery
+  | SecondBattery
   | Grid
   | Solar
   | Home

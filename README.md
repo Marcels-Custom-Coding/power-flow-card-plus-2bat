@@ -1,3 +1,48 @@
+# Power Flow Card Plus – mit zweiter Batterie
+
+Fork von [flixlix/flixlix-cards](https://github.com/flixlix/flixlix-cards). Einziger Unterschied zum Original: Die **Power Flow Card Plus** kann eine zweite Batterie anzeigen (`entities.battery2`).
+
+- `mode: separate` – eigener Kreis neben der ersten Batterie, beide über eine kleine Gabel angebunden. Jede Batterie zeigt ihren eigenen Ladestand und ihre eigene Leistung.
+- `mode: combined` – beide Batterien in einem gemeinsamen Kreis, Leistung addiert, Ladestände nebeneinander (oder als Mittelwert mit `combined_state_of_charge: average`).
+
+Lädt eine Batterie die andere, zählt das nicht als Fluss zum Haus oder Netz; im getrennten Modus sieht man es an der Gabel.
+
+```yaml
+type: custom:power-flow-card-plus
+entities:
+  grid:
+    entity: sensor.netz_leistung
+  solar:
+    entity: sensor.pv_leistung
+  battery:
+    name: BYD
+    entity: sensor.byd_leistung
+    state_of_charge: sensor.byd_ladestand
+  battery2:
+    name: Marstek
+    mode: separate
+    entity: sensor.marstek_leistung
+    state_of_charge: sensor.marstek_ladestand
+```
+
+Alle Optionen: [Second Battery Configuration](packages/flixlix-cards/power-flow-card-plus/README.md#second-battery-configuration). Im visuellen Editor gibt es dafür die Seite „Zweite Batterie“.
+
+### Installation
+
+**HACS:** HACS → Benutzerdefinierte Repositories → `https://github.com/Marcels-Custom-Coding/power-flow-card-plus-2bat`, Typ „Dashboard“. Die originale Power Flow Card Plus vorher entfernen, weil beide denselben Kartentyp `custom:power-flow-card-plus` belegen. Bestehende Karten laufen unverändert weiter.
+
+**Ohne HACS:** [`dist/power-flow-card-plus.js`](dist/power-flow-card-plus.js) nach `/config/www/` kopieren und als Dashboard-Ressource `/local/power-flow-card-plus.js` (JavaScript-Modul) eintragen.
+
+### Selbst bauen
+
+```bash
+corepack pnpm install --filter power-flow-card-plus...
+cd packages/flixlix-cards/power-flow-card-plus && corepack pnpm exec rollup -c
+cp dist/power-flow-card-plus.js ../../../dist/
+```
+
+---
+
 # Flixlix Cards
 
 This is a monorepo for all my Home Assistant cards, including their source code, release management, and documentation.

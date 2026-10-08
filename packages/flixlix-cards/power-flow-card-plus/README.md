@@ -157,14 +157,15 @@ If none of these actions are configured for a clickable entity surface, the card
 
 At least one of _grid_, _battery_, or _solar_ is required. All entites (except _battery_charge_) should have a `unit_of_measurement` attribute of W(watts) or kW(kilowatts).
 
-| Name                   | Type     | Description                                                                      |
-| ---------------------- | :------- | -------------------------------------------------------------------------------- |
-| grid                   | `object` | Check [Grid Configuration](#grid-configuration) for more information.            |
-| solar                  | `object` | Check [Solar Configuration](#solar-configuration) for more information.          |
-| battery                | `object` | Check [Battery Configuration](#battery-configuration) for more information.      |
-| individual             | `array`  | Check [Individual Devices](#individual-configuration) for more information.      |
-| home                   | `object` | Check [Home Configuration](#home-configuration) for more information.            |
-| fossil_fuel_percentage | `object` | Check [Fossil Fuel Percentage](#fossil-fuel-configuration) for more information. |
+| Name                   | Type     | Description                                                                               |
+| ---------------------- | :------- | ----------------------------------------------------------------------------------------- |
+| grid                   | `object` | Check [Grid Configuration](#grid-configuration) for more information.                     |
+| solar                  | `object` | Check [Solar Configuration](#solar-configuration) for more information.                   |
+| battery                | `object` | Check [Battery Configuration](#battery-configuration) for more information.               |
+| battery2               | `object` | Check [Second Battery Configuration](#second-battery-configuration) for more information. |
+| individual             | `array`  | Check [Individual Devices](#individual-configuration) for more information.               |
+| home                   | `object` | Check [Home Configuration](#home-configuration) for more information.                     |
+| fossil_fuel_percentage | `object` | Check [Fossil Fuel Percentage](#fossil-fuel-configuration) for more information.          |
 
 #### Grid Configuration
 
@@ -217,6 +218,36 @@ At least one of _grid_, _battery_, or _solar_ is required. All entites (except _
 | color_circle                     | "color_dynamically" or "production" or "consumption"           | `consumption`                                          | If set to `color_dynamically`, circle color will match the highest value. If set to `production`, circle color will match the production. If set to `consumption`, circle text color will match the consumption.                                                                                                                                                                              |
 | color_value                      | `boolean`                                                      | `true`                                                 | If set to `false`, the values of power will not be colored according to input and output.                                                                                                                                                                                                                                                                                                     |
 | invert_state                     | `boolean`                                                      | `false`                                                | If set to true the direction as well as the values will be inverted, meaning a positive value will be shown as production and a negative value will be shown as consumption.                                                                                                                                                                                                                  |
+
+#### Second Battery Configuration
+
+`battery2` accepts every option of the [Battery Configuration](#battery-configuration) and a few more:
+
+| Name                     | Type                     | Default                | Description                                                                                                                                                                                  |
+| ------------------------ | ------------------------ | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| mode                     | "separate" or "combined" | `separate`             | `separate` shows the second battery as its own circle next to the first one, connected by a small fork. `combined` adds both batteries up and shows them in the circle of the first battery. |
+| combined_state_of_charge | "both" or "average"      | `both`                 | Only for `combined`: show both states of charge side by side, or their average.                                                                                                              |
+| combined_name            | `string`                 | `Battery` (translated) | Only for `combined`: label below the shared circle.                                                                                                                                          |
+
+Power moving straight from one battery into the other is not counted as going to home or grid. In `separate` mode the fork shows it: one branch flows up, the other one down.
+
+```yaml
+type: custom:power-flow-card-plus
+entities:
+  grid:
+    entity: sensor.grid_power
+  solar:
+    entity: sensor.solar_power
+  battery:
+    name: BYD
+    entity: sensor.byd_power
+    state_of_charge: sensor.byd_state_of_charge
+  battery2:
+    name: Marstek
+    mode: separate
+    entity: sensor.marstek_power
+    state_of_charge: sensor.marstek_state_of_charge
+```
 
 #### Individual Configuration
 

@@ -7,7 +7,7 @@ import {
 import "@flixlix-cards/shared/ui-editor/components/individual-devices-editor";
 import "@flixlix-cards/shared/ui-editor/components/link-subpage";
 import "@flixlix-cards/shared/ui-editor/components/subpage-header";
-import { batterySchema } from "@flixlix-cards/shared/ui-editor/schema/battery";
+import { battery2Schema, batterySchema } from "@flixlix-cards/shared/ui-editor/schema/battery";
 import { nonFossilSchema } from "@flixlix-cards/shared/ui-editor/schema/fossil-fuel-percentage";
 import { gridSchema } from "@flixlix-cards/shared/ui-editor/schema/grid";
 import { homeSchema } from "@flixlix-cards/shared/ui-editor/schema/home";
@@ -39,6 +39,11 @@ const CONFIG_PAGES: {
     page: "battery",
     icon: "mdi:battery-high",
     schema: batterySchema,
+  },
+  {
+    page: "battery2",
+    icon: "mdi:battery-plus-variant",
+    schema: battery2Schema,
   },
   {
     page: "fossil_fuel_percentage",

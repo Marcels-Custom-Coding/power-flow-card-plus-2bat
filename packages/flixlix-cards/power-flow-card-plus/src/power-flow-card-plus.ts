@@ -1,4 +1,5 @@
 import { batteryElement } from "@flixlix-cards/shared/components/battery";
+import { batterySplitElement } from "@flixlix-cards/shared/components/battery-split";
 import { flowElement } from "@flixlix-cards/shared/components/flows/index";
 import { gridElement } from "@flixlix-cards/shared/components/grid";
 import { homeElement } from "@flixlix-cards/shared/components/home";
@@ -17,6 +18,7 @@ import {
   subscribeRenderTemplate,
 } from "@flixlix-cards/shared/ha/template/ha-websocket";
 import localize from "@flixlix-cards/shared/i18n";
+import { getFieldInState, getFieldOutState } from "@flixlix-cards/shared/states/raw/base";
 import {
   getBatteryInState,
   getBatteryOutState,
@@ -66,6 +68,13 @@ import {
   getTopRightIndividual,
 } from "@flixlix-cards/shared/utils/compute-individual-position";
 import { computePowerDistributionAfterSolarAndBattery } from "@flixlix-cards/shared/utils/compute-power-distribution";
+import {
+  averageStateOfCharge,
+  combineBatteryFlows,
+  computeBatteryIcon,
+  computeBatteryUnitStyle,
+  getBatteryMode,
+} from "@flixlix-cards/shared/utils/compute-second-battery";
 import { displayValue } from "@flixlix-cards/shared/utils/display-value";
 import { defaultValues, getDefaultConfig } from "@flixlix-cards/shared/utils/get-default-config";
 import { registerCustomCard } from "@flixlix-cards/shared/utils/register-custom-card";
@@ -117,6 +126,7 @@ export class PowerFlowCardPlus extends LitElement {
         grid: GridObject;
         solar: any;
         battery: any;
+        batteryUnits?: [any, any];
         home: any;
         nonFossil: any;
         individualObjs: IndividualObject[];
@@ -144,6 +154,7 @@ export class PowerFlowCardPlus extends LitElement {
     if (
       !config.entities ||
       (!config.entities?.battery?.entity &&
+        !config.entities?.battery2?.entity &&
         !config.entities?.grid?.entity &&
         !config.entities?.solar?.entity)
     ) {
@@ -363,6 +374,7 @@ export class PowerFlowCardPlus extends LitElement {
       grid,
       solar,
       battery,
+      batteryUnits,
       home,
       nonFossil,
       individualObjs,
@@ -397,7 +409,7 @@ export class PowerFlowCardPlus extends LitElement {
         <div
           class="card-content ${this._config.full_size ? "full-size" : ""} ${this._config.no_labels
             ? "no-labels"
-            : ""}"
+            : ""} ${batteryUnits ? "has-battery-split" : ""}"
           id="power-flow-card-plus"
           style=${this._config.style_card_content ? this._config.style_card_content : ""}
         >
@@ -471,7 +483,20 @@ export class PowerFlowCardPlus extends LitElement {
           ${battery.has || checkHasBottomIndividual(individualObjs)
             ? html`<div class="row">
                 ${spacer}
-                ${battery.has ? batteryElement(this, this._config, { battery, entities }) : spacer}
+                ${batteryUnits
+                  ? batterySplitElement(this, this._config, {
+                      units: batteryUnits,
+                      entities,
+                      shiftLeft:
+                        !!individualFieldLeftBottom && checkHasRightIndividual(individualObjs),
+                    })
+                  : battery.has
+                    ? batteryElement(this, this._config, {
+                        battery,
+                        entities,
+                        field: battery.field,
+                      })
+                    : spacer}
                 ${individualFieldLeftBottom
                   ? individualLeftBottomElement(this, this._config, {
                       displayState: getIndividualDisplayState(individualFieldLeftBottom),
@@ -652,15 +677,16 @@ export class PowerFlowCardPlus extends LitElement {
         double_tap_action: entities.solar?.secondary_info?.double_tap_action,
       },
     };
-    const checkIfHasBattery = () => {
-      if (!entities.battery?.entity) return false;
-      if (typeof entities.battery?.entity === "object")
-        return entities.battery?.entity.consumption || entities.battery?.entity.production;
-      return entities.battery?.entity !== undefined;
+    const checkIfHasBattery = (batteryConfig: typeof entities.battery) => {
+      if (!batteryConfig?.entity) return false;
+      if (typeof batteryConfig.entity === "object")
+        return batteryConfig.entity.consumption || batteryConfig.entity.production;
+      return batteryConfig.entity !== undefined;
     };
     const battery = {
+      field: "battery" as "battery" | "battery2",
       entity: entities.battery?.entity,
-      has: checkIfHasBattery(),
+      has: checkIfHasBattery(entities.battery),
       mainEntity:
         typeof entities.battery?.entity === "object"
           ? entities.battery.entity.consumption
@@ -676,6 +702,7 @@ export class PowerFlowCardPlus extends LitElement {
         unit: entities?.battery?.state_of_charge_unit ?? "%",
         unit_white_space: entities?.battery?.state_of_charge_unit_white_space ?? true,
         decimals: entities?.battery?.state_of_charge_decimals || 0,
+        second: undefined as undefined | { state: number | null; [key: string]: any },
       },
       state: {
         toBattery: getBatteryInState(this.hass, this._config),
@@ -692,6 +719,35 @@ export class PowerFlowCardPlus extends LitElement {
         icon_type: undefined as string | boolean | undefined,
         circle_type: entities.battery?.color_circle,
       },
+    };
+    const battery2Config = entities.battery2;
+    const battery2 = {
+      field: "battery2" as const,
+      entity: battery2Config?.entity,
+      has: checkIfHasBattery(battery2Config),
+      name: computeFieldName(this.hass, battery2Config, `${battery.name} 2`),
+      icon: computeFieldIcon(this.hass, battery2Config, "mdi:battery-high"),
+      state_of_charge: {
+        state: battery2Config?.state_of_charge
+          ? getEntityState(this.hass, battery2Config.state_of_charge)
+          : null,
+        unit: battery2Config?.state_of_charge_unit ?? battery.state_of_charge.unit,
+        unit_white_space:
+          battery2Config?.state_of_charge_unit_white_space ??
+          battery.state_of_charge.unit_white_space,
+        decimals: battery2Config?.state_of_charge_decimals ?? battery.state_of_charge.decimals,
+      },
+      state: {
+        toBattery: getFieldInState(this.hass, this._config, "battery2"),
+        fromBattery: getFieldOutState(this.hass, this._config, "battery2"),
+        toGrid: 0,
+        toHome: 0,
+      },
+      tap_action: battery2Config?.tap_action,
+      hold_action: battery2Config?.hold_action,
+      double_tap_action: battery2Config?.double_tap_action,
+      dur: 0,
+      style: "",
     };
     const home = {
       entity: entities.home?.entity,
@@ -787,6 +843,62 @@ export class PowerFlowCardPlus extends LitElement {
       (battery.state.fromBattery ?? 0) !== 0 || (battery.state.toBattery ?? 0) !== 0;
     if (entities.battery?.display_zero === false && !hasBatteryFlow) {
       battery.has = false;
+    }
+    let batteryUnits: [any, any] | undefined;
+    if (battery2.has) {
+      battery2.state.fromBattery = adjustZeroTolerance(
+        battery2.state.fromBattery,
+        battery2Config?.display_zero_tolerance
+      );
+      battery2.state.toBattery = adjustZeroTolerance(
+        battery2.state.toBattery,
+        battery2Config?.display_zero_tolerance
+      );
+      const hasBattery2Flow =
+        (battery2.state.fromBattery ?? 0) !== 0 || (battery2.state.toBattery ?? 0) !== 0;
+      if (battery2Config?.display_zero === false && !hasBattery2Flow) {
+        battery2.has = false;
+      }
+    }
+    if (checkIfHasBattery(battery2Config)) {
+      const firstUnit = {
+        ...battery,
+        state: { ...battery.state },
+        state_of_charge: { ...battery.state_of_charge },
+        dur: 0,
+        style: "",
+      };
+      const combined = combineBatteryFlows(
+        { toBattery: battery.state.toBattery ?? 0, fromBattery: battery.state.fromBattery ?? 0 },
+        { toBattery: battery2.state.toBattery ?? 0, fromBattery: battery2.state.fromBattery ?? 0 }
+      );
+      battery.state.toBattery = battery.has || battery2.has ? combined.toBattery : 0;
+      battery.state.fromBattery = battery.has || battery2.has ? combined.fromBattery : 0;
+      if (getBatteryMode(battery2Config?.mode) === "combined") {
+        battery.name =
+          battery2Config?.combined_name ??
+          this.hass.localize("ui.panel.lovelace.cards.energy.energy_distribution.battery");
+        if (battery2Config?.combined_state_of_charge === "average") {
+          battery.state_of_charge.state = averageStateOfCharge([
+            battery.state_of_charge.state,
+            battery2.state_of_charge.state,
+          ]);
+        } else if (battery.state_of_charge.state === null) {
+          battery.state_of_charge.state = battery2.state_of_charge.state;
+        } else if (battery2.state_of_charge.state !== null) {
+          battery.state_of_charge.second = battery2.state_of_charge;
+        }
+        battery.has = battery.has || battery2.has;
+      } else if (battery.has && battery2.has) {
+        batteryUnits = [firstUnit, battery2];
+      } else if (battery2.has) {
+        /* only the second battery is visible, show it in place of the first one */
+        Object.assign(battery, {
+          ...battery2,
+          state: { ...battery.state },
+          color: battery.color,
+        });
+      }
     }
     if (grid.state.fromGrid === 0) {
       grid.state.toHome = 0;
@@ -891,23 +1003,26 @@ export class PowerFlowCardPlus extends LitElement {
       (battery.state.toHome ?? 0) +
       (grid.state.toBattery ?? 0) +
       (battery.state.toGrid ?? 0);
-    if (battery.state_of_charge.state === null) {
-      battery.icon = "mdi:battery";
-    } else if (battery.state_of_charge.state <= 72 && battery.state_of_charge.state > 44) {
-      battery.icon = "mdi:battery-medium";
-    } else if (battery.state_of_charge.state <= 44 && battery.state_of_charge.state > 16) {
-      battery.icon = "mdi:battery-low";
-    } else if (battery.state_of_charge.state <= 16) {
-      battery.icon = "mdi:battery-outline";
-    }
-    if (entities.battery?.icon !== undefined) battery.icon = entities.battery?.icon;
-    const batteryUseMetadataIcon = entities.battery?.use_metadata;
-    if (batteryUseMetadataIcon) {
-      const metadataIcon = computeFieldIcon(this.hass, entities.battery, "NO_ICON_METADATA");
-      if (metadataIcon !== "NO_ICON_METADATA") {
-        battery.icon = metadataIcon;
+    const resolveBatteryIcon = (
+      batteryConfig: typeof entities.battery,
+      stateOfCharge: number | null
+    ): string => {
+      if (batteryConfig?.icon !== undefined) return batteryConfig.icon;
+      if (batteryConfig?.use_metadata) {
+        const metadataIcon = computeFieldIcon(this.hass, batteryConfig, "NO_ICON_METADATA");
+        if (metadataIcon !== "NO_ICON_METADATA") return metadataIcon;
       }
-    }
+      return computeBatteryIcon(stateOfCharge);
+    };
+    battery.icon = resolveBatteryIcon(
+      entities[battery.field],
+      battery.state_of_charge.second
+        ? averageStateOfCharge([
+            battery.state_of_charge.state,
+            battery.state_of_charge.second.state,
+          ])
+        : battery.state_of_charge.state
+    );
     const newDur: NewDur = {
       batteryGrid: computeFlowRate(
         this._config,
@@ -925,6 +1040,23 @@ export class PowerFlowCardPlus extends LitElement {
         ) || [],
       nonFossil: computeFlowRate(this._config, nonFossil.state.power ?? 0, totalLines),
     };
+    batteryUnits?.forEach((unit) => {
+      const unitConfig = entities[unit.field as "battery" | "battery2"];
+      const flow = {
+        toBattery: unit.state.toBattery ?? 0,
+        fromBattery: unit.state.fromBattery ?? 0,
+      };
+      unit.icon = resolveBatteryIcon(unitConfig, unit.state_of_charge.state);
+      unit.dur = computeFlowRate(
+        this._config,
+        Math.max(flow.toBattery, flow.fromBattery),
+        totalLines
+      );
+      unit.style = computeBatteryUnitStyle(
+        unit.field === "battery2" ? { ...entities.battery, ...unitConfig } : unitConfig,
+        flow
+      );
+    });
     if (checkShouldShowDots(this._config)) {
       type AnimatedFlowName =
         | "batteryGrid"
@@ -1043,6 +1175,7 @@ export class PowerFlowCardPlus extends LitElement {
       grid,
       solar,
       battery,
+      batteryUnits,
       home,
       nonFossil,
       individualObjs: visibleIndividualObjects,
