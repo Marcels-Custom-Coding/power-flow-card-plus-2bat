@@ -630,7 +630,8 @@ export const styles = css`
   }
   .card-content.has-battery-split .lines.high,
   .card-content.has-battery-split .right-individual-flow-container {
-    bottom: 120px;
+    /* circle and label (100px) plus the fork (36px) */
+    bottom: 136px;
   }
   .card-content.has-battery-split .circle-container.individual-bottom {
     justify-content: flex-start;

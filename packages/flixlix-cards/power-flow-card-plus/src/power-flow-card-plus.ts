@@ -1,6 +1,7 @@
 import { batteryElement } from "@flixlix-cards/shared/components/battery";
 import {
   batterySplitElement,
+  FORK_JUNCTION_Y,
   forkJunctionX,
   type ForkLink,
   visibleLineEnd,
@@ -606,8 +607,9 @@ export class PowerFlowCardPlus extends LitElement {
       const x = Math.round(end.x * 10) / 10;
       const y = Math.round(end.y * 10) / 10;
       const toX = junctionX + offset;
+      const middle = (y + FORK_JUNCTION_Y) / 2;
       return {
-        d: `M${x},${y} C${x},${y / 2} ${toX},${y / 2} ${toX},0`,
+        d: `M${x},${y} C${x},${middle} ${toX},${middle} ${toX},${FORK_JUNCTION_Y}`,
         stroke: end.stroke,
         opacity: end.opacity,
       };

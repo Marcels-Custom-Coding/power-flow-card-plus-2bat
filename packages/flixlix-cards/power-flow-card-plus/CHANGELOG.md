@@ -1,5 +1,11 @@
 # power-flow-card-plus
 
+## 0.4.4
+
+### Patch Changes
+
+- Separate batteries: taller fork, the battery lines now merge and split in smooth S-curves instead of a small knot.
+
 ## 0.4.3
 
 ### Patch Changes

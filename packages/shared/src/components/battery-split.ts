@@ -9,9 +9,12 @@ import { styleLine } from "@flixlix-cards/shared/utils/style-line";
 import { html, nothing, svg } from "lit";
 import { batteryElement } from "./battery";
 
-/* the fork leaves the point where all battery lines meet and ends on top of each battery circle */
+/* The battery lines run into one point a bit below the top of the fork (FORK_JUNCTION_Y), the
+   fork splits from there to the top of each battery circle. Both parts are S-curves with vertical
+   ends, so the lines flow into each other without a kink. */
 const FORK_WIDTH = 176;
-const FORK_HEIGHT = 20;
+const FORK_HEIGHT = 36;
+export const FORK_JUNCTION_Y = 14;
 const CIRCLE_CENTERS = { battery: 40, battery2: FORK_WIDTH - 40 };
 /* when the slot right of the batteries is taken, both circles move left by half a circle distance */
 export const BATTERY_SPLIT_SHIFT = (CIRCLE_CENTERS.battery2 - CIRCLE_CENTERS.battery) / 2;
@@ -42,7 +45,8 @@ export const visibleLineEnd = (path: SVGPathElement): { x: number; y: number } |
 const forkPath = (field: "battery" | "battery2", shiftLeft: boolean, offset: number) => {
   const start = forkJunctionX(shiftLeft) + offset;
   const end = CIRCLE_CENTERS[field];
-  return `M${start},0 C${start},${FORK_HEIGHT * 0.6} ${end},${FORK_HEIGHT * 0.4} ${end},${FORK_HEIGHT}`;
+  const middle = (FORK_JUNCTION_Y + FORK_HEIGHT) / 2;
+  return `M${start},${FORK_JUNCTION_Y} C${start},${middle} ${end},${middle} ${end},${FORK_HEIGHT}`;
 };
 
 const forkBranch = (
